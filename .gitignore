@@ -1,0 +1,44 @@
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv
+venv/
+env/
+ENV/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# PIP files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python environment
+.env
+*.env
+
+# Railway config (jika ada)
+railway.json
+
+# Pytest cache
+.pytest_cache/
+.cache/
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
