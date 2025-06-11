@@ -13,7 +13,7 @@ app = FastAPI()
 # Supabase config (ambil dari environment variable)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
+SUPABASE_BUCKET_NAME = os.getenv("SUPABASE_BUCKET")
 
 # Inisialisasi Firebase
 cred = credentials.Certificate("serviceAccountKey.json")
