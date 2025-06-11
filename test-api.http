@@ -1,0 +1,5 @@
+### Ping test (opsional)
+GET https://supabase-delete-api-production.up.railway.app/ping
+
+### Hapus user (ganti ID sesuai Firestore)
+DELETE https://supabase-delete-api-production.up.railway.app/hapus-user/1749653911106

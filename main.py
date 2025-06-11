@@ -5,51 +5,62 @@ from firebase_admin import credentials, firestore
 import os
 from dotenv import load_dotenv
 
+# Load .env file
 load_dotenv()
+
 app = FastAPI()
 
-# Supabase config
-SUPABASE_URL = os.getenv("https://juigrfuhshdlsbphvvqx.supabase.co")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1aWdyZnVoc2hkbHNicGh2dnF4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NzU4NDU2OSwiZXhwIjoyMDYzMTYwNTY5fQ.o2BcOHorJnkcDuuOJLFhkaA6bXeylDOgtXw-1p--Cic")
-SUPABASE_BUCKET = os.getenv("foto-profil")
+# Supabase config (ambil dari environment variable)
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_BUCKET = os.getenv("SUPABASE_BUCKET")
 
-# Firebase init
-cred = credentials.Certificate("serviceAccountKey.json")  # download dari Firebase
+# Inisialisasi Firebase
+cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 @app.delete("/hapus-user/{user_id}")
 def hapus_user(user_id: str):
-    # 1. Ambil data user dari Firestore
+    # Ambil data user dari Firestore
     user_ref = db.collection("users").document(user_id)
-    user_data = user_ref.get().to_dict()
+    user_doc = user_ref.get()
 
-    if not user_data:
+    if not user_doc.exists:
         return {"error": "User tidak ditemukan"}
 
+    user_data = user_doc.to_dict()
     foto_url = user_data.get("foto_anggota", "")
-    
-    # 2. Ambil path dari URL
+
+    # Ekstrak path dari URL Supabase
     if "object/public/" in foto_url:
         path = foto_url.split("object/public/")[1]
     else:
         path = None
 
-    # 3. Hapus foto di Supabase
+    # Hapus file dari Supabase jika ada path
     if path:
         headers = {
             "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
             "Content-Type": "application/json"
         }
-        response = requests.post(
-            f"{SUPABASE_URL}/storage/v1/object/remove",
-            headers=headers,
-            json={"bucketName": SUPABASE_BUCKET, "paths": [path]}
-        )
+        delete_url = f"{SUPABASE_URL}/storage/v1/object/remove"
+        response = requests.post(delete_url, headers=headers, json={
+            "bucketName": SUPABASE_BUCKET,
+            "paths": [path]
+        })
+
         if response.status_code != 200:
-            return {"error": "Gagal hapus foto dari Supabase", "detail": response.text}
-    
-    # 4. Hapus dokumen Firestore
+            return {
+                "error": "Gagal hapus file dari Supabase",
+                "supabase_response": response.text
+            }
+
+    # Hapus dokumen Firestore
     user_ref.delete()
 
-    return {"status": "sukses", "user_id": user_id, "foto_path": path}
+    return {
+        "status": "sukses",
+        "user_id": user_id,
+        "foto_path": path
+    }
