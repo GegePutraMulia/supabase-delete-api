@@ -46,7 +46,7 @@ def hapus_user(user_id: str):
         }
         delete_url = f"{SUPABASE_URL}/storage/v1/object/remove"
         response = requests.post(delete_url, headers=headers, json={
-            "bucketName": SUPABASE_BUCKET,
+            "bucketName": SUPABASE_BUCKET_NAME,
             "paths": [path]
         })
 
